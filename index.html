@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html ng-app="myApp">
+<head>
+    <title>My AngularJS App</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.9/angular.min.js"></script>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
+        }
+    </style>
+</head>
+<body>
+<div ng-controller="MyController">
+    <h1>My To-Do List</h1>
+
+    <input type="text" ng-model="username" placeholder="Username">
+    <input type="password" ng-model="password" placeholder="Password">
+    <button ng-click="addNewUser()">Add</button>
+
+    <ul>
+        <li ng-repeat="item in items">
+            {{ item.username }} - {{ item.password }}
+            <a ng-click="removeUser(item)">
+                <span class="material-symbols-outlined">
+                close
+                </span>
+            </a>
+
+        </li>
+    </ul>
+</div>
+
+<script>
+    angular.module('myApp', [])
+        .controller('MyController',['$scope', '$http'], function ($scope, $http) {
+            $scope.items = [];
+
+            $scope.addNewUser = function () {
+                if ($scope.username && $scope.password) {
+                    let username = $scope.username;
+                    let password = $scope.password;
+                    let newItem = {username, password};
+                    $scope.items.push(newItem);
+                    $scope.username = '';
+                    $scope.password = '';
+                }
+            };
+
+            $scope.removeUser = function (item) {
+                $scope.items.splice($scope.items.indexOf(item), 1);
+            }
+            let init = function () {
+                $http.get('http://localhost:8080/colaboradores').then(function (response) {
+                    $scope.items = response.data;
+                });
+            }
+            init();
+        });
+
+</script>
+</body>
+</html>
