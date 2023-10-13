@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app="myApp">
+<html ng-app="bancoSenha">
 <head>
     <title>My AngularJS App</title>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.9/angular.min.js"></script>
@@ -15,16 +15,16 @@
     </style>
 </head>
 <body>
-<div ng-controller="MyController">
-    <h1>My To-Do List</h1>
+<div ng-controller="ControllerBancoSenha">
+    <h1>Banco de Senhas</h1>
 
-    <input type="text" ng-model="username" placeholder="Username">
-    <input type="password" ng-model="password" placeholder="Password">
-    <button ng-click="addNewUser()">Add</button>
+    <input type="text" ng-model="nome" placeholder="Username">
+    <input type="password" ng-model="senha" placeholder="Password">
+    <button ng-click="addNewUser()">Adicionar</button>
 
-    <ul>
+    <ul><li>Nome - Forca Senha - Nivel</li>
         <li ng-repeat="item in items">
-            {{ item.username }} - {{ item.password }}
+            {{ item.nome }} - {{ item.forcaSenha }}% - {{item.nivelHierarquia}}
             <a ng-click="removeUser(item)">
                 <span class="material-symbols-outlined">
                 close
@@ -36,26 +36,32 @@
 </div>
 
 <script>
-    angular.module('myApp', [])
-        .controller('MyController',['$scope', '$http'], function ($scope, $http) {
+    angular.module('bancoSenha', [])
+        .controller('ControllerBancoSenha', function($scope, $http){
             $scope.items = [];
 
             $scope.addNewUser = function () {
-                if ($scope.username && $scope.password) {
-                    let username = $scope.username;
-                    let password = $scope.password;
-                    let newItem = {username, password};
-                    $scope.items.push(newItem);
-                    $scope.username = '';
-                    $scope.password = '';
+                if ($scope.nome && $scope.senha) {
+                    let nome = $scope.nome;
+                    let senha = $scope.senha;
+                    let newItem = {nome, senha};
+                    $http.post('http://localhost:8080/colaborador', newItem).then(function (response) {
+                        console.log(response.data);
+                        $scope.items.push(response.data);
+                        $scope.username = '';
+                        $scope.password = '';
+                    })
+
                 }
             };
 
             $scope.removeUser = function (item) {
-                $scope.items.splice($scope.items.indexOf(item), 1);
+                $http.delete('http://localhost:8080/colaborador/' + item.id).then(function (response) {
+                    $scope.items.splice($scope.items.indexOf(item), 1);
+                })
             }
             let init = function () {
-                $http.get('http://localhost:8080/colaboradores').then(function (response) {
+                $http.get('http://localhost:8080/colaborador').then(function (response) {
                     $scope.items = response.data;
                 });
             }
